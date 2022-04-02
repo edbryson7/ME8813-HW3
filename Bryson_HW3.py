@@ -5,16 +5,29 @@ import pandas as pd
 
 
 def main():
-    model = init_model()
-    show_model(model)
-
     companies = ['.//HistoricalData_AMD.csv', './/HistoricalData_APPLE.csv', './/HistoricalData_CISCO.csv', './/HistoricalData_MICROSOFT.csv', './/HistoricalData_QUALCOMM.csv']
-    get_stock_data(companies[0])
 
-def get_stock_data(fpath):
-    df = pd.read_csv(fpath)
+    model = initModel()
+    # showModel(model)
 
-def show_model(model):
+    for comp in companies[:3]:
+        print(f'Fitting with {comp[18:-4]}')
+        data = getStockData(comp)
+        model.fit(data ,max_iterations=500)
+
+    print(model)
+    showModel(model)
+
+def fit(model, data):
+    model.fit(data)
+
+def getStockData(fpath):
+    df = pd.read_csv(fpath, usecols = ['Close/Last']).replace('[\$,]', '', regex=True).astype(float)
+    dfDiff = df.diff()/df
+    return dfDiff.iloc[700:1200].to_numpy()
+
+
+def showModel(model):
     # print("=========original model========== ")
     # print(model)
 
@@ -23,7 +36,7 @@ def show_model(model):
     plt.show()
 
 
-def init_model():
+def initModel():
     # emission/observation probabilities
     # Given that the state is A, the expression is .01 with a variance of .0001
     dA = NormalDistribution(.01,.0001)
@@ -38,7 +51,6 @@ def init_model():
     s3 = State(dB, name='B')
     s4 = State(dM, name='M')
     s5 = State(dD, name='D')
-    sR = State(dD, name='R')
 
     # create model and add states
     model = HiddenMarkovModel('machine')
@@ -87,10 +99,15 @@ def init_model():
     model.add_transition(s5, s3, 0.2)
     model.add_transition(s5, s4, 0.2)
     model.add_transition(s5, s5, 0.2)
+
+    # Not sure what the effect of this is
+    # model.add_transition(s1, model.end, 0.00001)
+    # model.add_transition(s2, model.end, 0.00001)
+    # model.add_transition(s3, model.end, 0.00001)
+    # model.add_transition(s4, model.end, 0.00001)
+    # model.add_transition(s5, model.end, 0.00001)
+
     model.bake()
-
-    model.add_transition(s5, model.end, 0.1)
-
     return model
 
 
