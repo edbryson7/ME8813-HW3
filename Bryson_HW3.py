@@ -22,7 +22,7 @@ def fit(model, companies):
 
     print(f'Fitting with {[comp[18:-4] for comp in companies]}')
 
-    model.fit(data, transition_pseudocount=0, use_pseudocount=True)
+    model.fit(data, transition_pseudocount=5, use_pseudocount=True)
 
     return model
 
@@ -74,38 +74,38 @@ def initModel():
     # specify transition probabilities
 
     # From State A
-    model.add_transition(sA, sA, 0.8)
+    model.add_transition(sA, sA, 0.9)
     model.add_transition(sA, sS, 0.1)
     model.add_transition(sA, sB, 0.1)
     model.add_transition(sA, sM, 0.1)
 
     # From State S
-    model.add_transition(sS, sA, 0.1)
-    model.add_transition(sS, sS, 0.8)
+    model.add_transition(sS, sS, 0.9)
     model.add_transition(sS, sB, 0.1)
-    model.add_transition(sS, sM, 0.1)
     model.add_transition(sS, sD, 0.1)
 
     # From State B
     model.add_transition(sB, sA, 0.1)
     model.add_transition(sB, sS, 0.1)
-    model.add_transition(sB, sB, 0.8)
+    model.add_transition(sB, sB, 0.9)
+    model.add_transition(sB, sM, 0.1)
 
     # From State M
     model.add_transition(sM, sA, 0.1)
     model.add_transition(sM, sS, 0.1)
-    model.add_transition(sM, sM, 0.8)
+    model.add_transition(sM, sB, 0.1)
+    model.add_transition(sM, sM, 0.9)
 
     # From State D
     model.add_transition(sD, sS, 0.1)
     model.add_transition(sD, sD, 0.9)
 
     # Not sure what the effect of this is
-    model.add_transition(sA, model.end, 0.00001)
-    model.add_transition(sS, model.end, 0.00001)
-    model.add_transition(sB, model.end, 0.00001)
-    model.add_transition(sM, model.end, 0.00001)
-    model.add_transition(sD, model.end, 0.00001)
+    # model.add_transition(sA, model.end, 0.1)
+    # model.add_transition(sS, model.end, 0.1)
+    # model.add_transition(sB, model.end, 0.1)
+    # model.add_transition(sM, model.end, 0.1)
+    # model.add_transition(sD, model.end, 0.1)
 
     model.bake()
     return model
