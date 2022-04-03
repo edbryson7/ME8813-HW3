@@ -32,7 +32,7 @@ def getStockData(fpath):
 
     # return dfDiff.iloc[200:1200].to_numpy()
 
-    data = dfDiff.iloc[1:].to_numpy()
+    data = dfDiff.iloc[200:900].to_numpy()
     return data[::-1]
 
 def showModel(model):
