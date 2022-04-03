@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from pomegranate import *
 import numpy as np
 from matplotlib import pyplot as plt
@@ -13,18 +16,18 @@ def main():
     for comp in companies[:3]:
         print(f'Fitting with {comp[18:-4]}')
         data = getStockData(comp)
-        model.fit(data ,max_iterations=500)
+        # model.fit(data, transition_pseudocount=5, use_pseudocount=True)
+        model.fit(data, max_iterations=200, transition_pseudocount=5, use_pseudocount=True)
 
-    print(model)
+        # print(model)
     showModel(model)
-
-def fit(model, data):
-    model.fit(data)
+    return
 
 def getStockData(fpath):
     df = pd.read_csv(fpath, usecols = ['Close/Last']).replace('[\$,]', '', regex=True).astype(float)
     dfDiff = df.diff()/df
-    return dfDiff.iloc[700:1200].to_numpy()
+    return dfDiff.iloc[200:1200].to_numpy()
+    # return dfDiff.to_numpy()
 
 
 def showModel(model):
@@ -66,39 +69,39 @@ def initModel():
     # specify transition probabilities
 
     # From State A
-    model.add_transition(s1, s1, 0.2)
-    model.add_transition(s1, s2, 0.2)
-    model.add_transition(s1, s3, 0.2)
-    model.add_transition(s1, s4, 0.2)
-    model.add_transition(s1, s5, 0.2)
+    model.add_transition(s1, s1, 0.6)
+    model.add_transition(s1, s2, 0.1)
+    model.add_transition(s1, s3, 0.1)
+    model.add_transition(s1, s4, 0.1)
+    model.add_transition(s1, s5, 0.1)
 
     # From State S
-    model.add_transition(s2, s1, 0.2)
-    model.add_transition(s2, s2, 0.2)
-    model.add_transition(s2, s3, 0.2)
-    model.add_transition(s2, s4, 0.2)
-    model.add_transition(s2, s5, 0.2)
+    model.add_transition(s2, s1, 0.1)
+    model.add_transition(s2, s2, 0.6)
+    model.add_transition(s2, s3, 0.1)
+    model.add_transition(s2, s4, 0.1)
+    model.add_transition(s2, s5, 0.1)
 
     # From State B
-    model.add_transition(s3, s1, 0.2)
-    model.add_transition(s3, s2, 0.2)
-    model.add_transition(s3, s3, 0.2)
-    model.add_transition(s3, s4, 0.2)
-    model.add_transition(s3, s5, 0.2)
+    model.add_transition(s3, s1, 0.1)
+    model.add_transition(s3, s2, 0.1)
+    model.add_transition(s3, s3, 0.6)
+    model.add_transition(s3, s4, 0.1)
+    model.add_transition(s3, s5, 0.1)
 
     # From State M
-    model.add_transition(s4, s1, 0.2)
-    model.add_transition(s4, s2, 0.2)
-    model.add_transition(s4, s3, 0.2)
-    model.add_transition(s4, s3, 0.2)
-    model.add_transition(s4, s5, 0.2)
+    model.add_transition(s4, s1, 0.1)
+    model.add_transition(s4, s2, 0.1)
+    model.add_transition(s4, s3, 0.1)
+    model.add_transition(s4, s4, 0.6)
+    model.add_transition(s4, s5, 0.1)
 
     # From State D
-    model.add_transition(s5, s1, 0.2)
-    model.add_transition(s5, s2, 0.2)
-    model.add_transition(s5, s3, 0.2)
-    model.add_transition(s5, s4, 0.2)
-    model.add_transition(s5, s5, 0.2)
+    model.add_transition(s5, s1, 0.1)
+    model.add_transition(s5, s2, 0.1)
+    model.add_transition(s5, s3, 0.1)
+    model.add_transition(s5, s4, 0.1)
+    model.add_transition(s5, s5, 0.6)
 
     # Not sure what the effect of this is
     # model.add_transition(s1, model.end, 0.00001)
@@ -109,8 +112,6 @@ def initModel():
 
     model.bake()
     return model
-
-
 
 if __name__ == "__main__":
     main()
