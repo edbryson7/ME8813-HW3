@@ -8,31 +8,34 @@ import pandas as pd
 
 
 def main():
-    companies = ['.//HistoricalData_AMD.csv', './/HistoricalData_APPLE.csv', './/HistoricalData_CISCO.csv', './/HistoricalData_MICROSOFT.csv', './/HistoricalData_QUALCOMM.csv']
+    companies = ['.//HistoricalData_AMD.csv', './/HistoricalData_APPLE.csv', './/HistoricalData_QUALCOMM.csv', './/HistoricalData_CISCO.csv', './/HistoricalData_MICROSOFT.csv']
 
     model = initModel()
     # showModel(model)
+    model = fit(model, companies[:3])
 
-    for comp in companies[:3]:
+def fit(model, companies):
+    [getStockData(comp) for comp in companies]
+    for comp in companies:
         print(f'Fitting with {comp[18:-4]}')
         data = getStockData(comp)
-        # model.fit(data, transition_pseudocount=5, use_pseudocount=True)
-        model.fit(data, max_iterations=200, transition_pseudocount=5, use_pseudocount=True)
 
-        # print(model)
-    showModel(model)
-    return
+        model.fit(data, transition_pseudocount=5, use_pseudocount=True)
+        # model.fit(data[::-1], max_iterations=200, transition_pseudocount=5, use_pseudocount=True)
+        showModel(model)
+
+    return model
 
 def getStockData(fpath):
     df = pd.read_csv(fpath, usecols = ['Close/Last']).replace('[\$,]', '', regex=True).astype(float)
     dfDiff = df.diff()/df
-    return dfDiff.iloc[200:1200].to_numpy()
-    # return dfDiff.to_numpy()
+    # return dfDiff.iloc[200:1200].to_numpy()
+    return dfDiff.iloc[1:].to_numpy()
 
 
 def showModel(model):
     # print("=========original model========== ")
-    # print(model)
+    print(model)
 
     ## plot the model with network
     model.plot()
@@ -49,66 +52,58 @@ def initModel():
     dD = NormalDistribution(-.01,.0004)
 
     # define states
-    s1 = State(dA, name='A')
-    s2 = State(dS, name='S')
-    s3 = State(dB, name='B')
-    s4 = State(dM, name='M')
-    s5 = State(dD, name='D')
+    sA = State(dA, name='A')
+    sS = State(dS, name='S')
+    sB = State(dB, name='B')
+    sM = State(dM, name='M')
+    sD = State(dD, name='D')
 
     # create model and add states
     model = HiddenMarkovModel('machine')
-    model.add_states(s1, s2, s3, s4, s5)
+    model.add_states(sA, sS, sB, sM, sD)
 
     # specify initial probabilities
-    model.add_transition(model.start, s1, 0.2)
-    model.add_transition(model.start, s2, 0.2)
-    model.add_transition(model.start, s3, 0.2)
-    model.add_transition(model.start, s4, 0.2)
-    model.add_transition(model.start, s5, 0.2)
+    # model.add_transition(model.start, sA, 1/5)
+    model.add_transition(model.start, sS, 1/3)
+    model.add_transition(model.start, sB, 1/3)
+    model.add_transition(model.start, sM, 1/3)
+    # model.add_transition(model.start, sD, 1/5)
 
     # specify transition probabilities
 
     # From State A
-    model.add_transition(s1, s1, 0.6)
-    model.add_transition(s1, s2, 0.1)
-    model.add_transition(s1, s3, 0.1)
-    model.add_transition(s1, s4, 0.1)
-    model.add_transition(s1, s5, 0.1)
+    model.add_transition(sA, sA, 0.7)
+    model.add_transition(sA, sS, 0.1)
+    model.add_transition(sA, sB, 0.1)
+    model.add_transition(sA, sM, 0.1)
 
     # From State S
-    model.add_transition(s2, s1, 0.1)
-    model.add_transition(s2, s2, 0.6)
-    model.add_transition(s2, s3, 0.1)
-    model.add_transition(s2, s4, 0.1)
-    model.add_transition(s2, s5, 0.1)
+    model.add_transition(sS, sA, 0.1)
+    model.add_transition(sS, sS, 0.6)
+    model.add_transition(sS, sB, 0.1)
+    model.add_transition(sS, sM, 0.1)
+    model.add_transition(sS, sD, 0.1)
 
     # From State B
-    model.add_transition(s3, s1, 0.1)
-    model.add_transition(s3, s2, 0.1)
-    model.add_transition(s3, s3, 0.6)
-    model.add_transition(s3, s4, 0.1)
-    model.add_transition(s3, s5, 0.1)
+    model.add_transition(sB, sA, 0.2)
+    model.add_transition(sB, sS, 0.2)
+    model.add_transition(sB, sB, 0.6)
 
     # From State M
-    model.add_transition(s4, s1, 0.1)
-    model.add_transition(s4, s2, 0.1)
-    model.add_transition(s4, s3, 0.1)
-    model.add_transition(s4, s4, 0.6)
-    model.add_transition(s4, s5, 0.1)
+    model.add_transition(sM, sA, 0.1)
+    model.add_transition(sM, sS, 0.1)
+    model.add_transition(sM, sM, 0.8)
 
     # From State D
-    model.add_transition(s5, s1, 0.1)
-    model.add_transition(s5, s2, 0.1)
-    model.add_transition(s5, s3, 0.1)
-    model.add_transition(s5, s4, 0.1)
-    model.add_transition(s5, s5, 0.6)
+    model.add_transition(sD, sS, 0.2)
+    model.add_transition(sD, sD, 0.8)
 
     # Not sure what the effect of this is
-    # model.add_transition(s1, model.end, 0.00001)
-    # model.add_transition(s2, model.end, 0.00001)
-    # model.add_transition(s3, model.end, 0.00001)
-    # model.add_transition(s4, model.end, 0.00001)
-    # model.add_transition(s5, model.end, 0.00001)
+    # model.add_transition(sA, model.end, 0.00001)
+    model.add_transition(sS, model.end, 0.00001)
+    # model.add_transition(sB, model.end, 0.00001)
+    model.add_transition(sM, model.end, 0.00001)
+    # model.add_transition(sD, model.end, 0.00001)
 
     model.bake()
     return model
