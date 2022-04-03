@@ -15,14 +15,12 @@ def main():
     model = fit(model, companies[:3])
 
 def fit(model, companies):
-    [getStockData(comp) for comp in companies]
-    for comp in companies:
-        print(f'Fitting with {comp[18:-4]}')
-        data = getStockData(comp)
+    data = [getStockData(comp) for comp in companies]
+    print(f'Fitting with {comp[18:-4] for comp in companies}')
 
-        model.fit(data, transition_pseudocount=5, use_pseudocount=True)
-        # model.fit(data[::-1], max_iterations=200, transition_pseudocount=5, use_pseudocount=True)
-        showModel(model)
+    model.fit(data, transition_pseudocount=5, use_pseudocount=True)
+    # model.fit(data[::-1], max_iterations=200, transition_pseudocount=5, use_pseudocount=True)
+    showModel(model)
 
     return model
 
