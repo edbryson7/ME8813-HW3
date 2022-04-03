@@ -15,7 +15,12 @@ def main():
 
     # model.freeze_distributions()
     model = fit(model, companies[:3])
-    showModel(model)
+    printModel(model)
+
+    for comp in companies[3:]:
+        print(predict(model, comp), '\n')
+
+    plotModel(model)
 
 def fit(model, companies):
     data = [getStockData(comp) for comp in companies]
@@ -26,6 +31,19 @@ def fit(model, companies):
 
     return model
 
+def predict(model, company):
+    print(f'\nPredicting {company[18:-4]}')
+
+    data = getStockData(company)
+    # pred = model.predict(data)
+    # print(pred)
+
+    stateSeq = model.viterbi(data)
+    # stateSeq = model.maximum_a_posteriori(data)
+    # print(stateSeq)
+
+    return ''.join([state[1].name[0] for state in stateSeq[1][1:]])
+
 def getStockData(fpath):
     df = pd.read_csv(fpath, usecols = ['Close/Last']).replace('[\$,]', '', regex=True).astype(float)
     dfDiff = df.diff()/df
@@ -33,12 +51,14 @@ def getStockData(fpath):
     # return dfDiff.iloc[200:1200].to_numpy()
 
     data = dfDiff.iloc[200:900].to_numpy()
+    # data = dfDiff.iloc[20:30].to_numpy()
     return data[::-1]
 
-def showModel(model):
+def printModel(model):
     for state in model.states[:-2]:
         print('State {:s}: Epression: {:.5f}'.format(state.name, state.distribution.parameters[0]))
 
+def plotModel(model):
     # plot the model with network
     model.plot()
     plt.show()
