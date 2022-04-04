@@ -11,7 +11,7 @@ def main():
     companies = ['.//HistoricalData_CISCO.csv', './/HistoricalData_AMD.csv', './/HistoricalData_QUALCOMM.csv', './/HistoricalData_APPLE.csv', './/HistoricalData_MICROSOFT.csv']
 
     model = initModel()
-    # showModel(model)
+    plotModel(model)
 
     # model.freeze_distributions()
     model = fit(model, companies[:3])
@@ -56,7 +56,7 @@ def getStockData(fpath):
 
 def printModel(model):
     for state in model.states[:-2]:
-        print('State {:s}: Epression: {:.5f}'.format(state.name, state.distribution.parameters[0]))
+        print('State {:s}: Epression: {:.5f}, {:.7f}'.format(state.name, state.distribution.parameters[0], state.distribution.parameters[1]))
 
 def plotModel(model):
     # plot the model with network
